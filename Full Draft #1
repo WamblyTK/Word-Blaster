@@ -1,0 +1,150 @@
+import pygame
+import time
+from itertools import cycle
+import random
+#code.pylet
+
+#INTIATE#
+pygame.init()
+pygame.font.init()
+
+#COLOURS#
+White=(255,255,255)
+Black=(0,0,0)
+Red= (255,0,0)
+Blue= (0,255,0)
+Green= (0,0,255)
+Test= (163,78,21)
+
+#SCREEN /  DISPLAY#
+SWidth= 1400
+SHeight= 900
+Screen= pygame.display.set_mode((SWidth,SHeight))
+pygame.display.set_caption("Word Blaster")
+FPS= pygame.time.Clock()
+bg = pygame.image.load("Images\space.png").convert()
+bg2= bg.get_rect().height
+
+#FONTS#
+myfont= pygame.font.SysFont("monospace", 50)
+smol= pygame.font.SysFont("monospace", 25)
+
+
+#DEF#
+
+def Meteor(Meteorx, Meteory, Meteorw, Meteorh, colour):
+    pygame.draw.rect(Screen, colour, [Meteorx,Meteory, Meteorw, Meteorh])
+
+def Health(count):
+    font = pygame.font.SysFont("monospace",50)
+    text = font.render("Health: " + str(count), True, White)
+    Screen.blit(text,(0,0))
+def Score(score):
+    font= pygame.font.SysFont("monospace",50)
+    text= font.render("Score: " + str(score), True, White)
+    Screen.blit(text,(1100,0))
+
+#CLASS#
+
+class Text(pygame.sprite.Sprite):
+    def __init__(self, text, size, colour, width, height):
+        pygame.sprite.Sprite.__init__(self)
+        self.font = pygame.font.SysFont("monospace",size)
+        self.textSurf = self.font.render(text,1,colour)
+        self.image = pygame.Surface((width,height))
+        W = self.textSurf.get_width()
+        H = self.textSurf.get_height()
+        self.image.blit(self.textSurf, [width/2 - W/2, height/2 - H/2])
+
+#MENU LOOP#
+
+def Menu():
+    Show = True
+    Screen.blit(bg, [0, 0])
+    while Show:
+        for event in pygame.event.get():
+            if Show == True:
+
+                Title = myfont.render("Word Blaster V.1.0 ", 1, White)
+                Screen.blit(Title, (SWidth / 3, SHeight / 3))
+
+                Start = smol.render("(Press any key to start)", 1, White)
+                Screen.blit(Start, (SWidth / 2.6, SHeight / 2))
+
+
+
+
+            if event.type == pygame.QUIT:
+                Show = False
+                quit()
+            if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                Show == False
+                Main_Code()
+
+
+            pygame.display.update()
+
+#GAME LOOP#
+
+def Main_Code():
+    user_input = ''
+    Running= True
+    bgY= 0
+
+    health = 1
+    score = 0
+
+    Meteor_startx = random.randrange(0,(SWidth-70))
+    Meteor_starty = -300
+    Meteor_speed = 1.5
+    Meteor_width = 100
+    Meteor_height = 100
+
+    Textlist= ['Apple', 'Banana', 'Pear', 'Orange', 'Kiwi']
+
+
+
+
+    while Running:
+            FPS.tick(60)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    Running = False
+                    quit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.unicode.isalpha():
+                        user_input += event.unicode
+                        print (user_input)
+                    elif event.key == pygame.K_BACKSPACE:
+                        user_input = user_input[:-1]
+                    elif event.key == pygame.K_RETURN:
+                        user_input = ''
+            ref_y = (bgY % bg2)
+            Screen.blit(bg, [0, ref_y - bg.get_rect().height])
+            if ref_y < SHeight:
+                Screen.blit(bg, (0, ref_y))
+            bgY -= 1.5
+            text = myfont.render(user_input, True, White)
+            Screen.blit(text, (20, 800))
+
+            Meteor(Meteor_startx,Meteor_starty,Meteor_width,Meteor_height,Test)
+            Meteor_starty += Meteor_speed
+            Health(health)
+            Score(score)
+
+            if Meteor_starty > SHeight:
+                Meteor_starty = 0 - Meteor_height
+                Meteor_startx = random.randrange(0,(SWidth-70))
+                Meteor_speed += 0.25
+                if health > 0:
+                    health -= 1
+
+                else:
+                    print ("dead")
+                    quit()
+            # Update
+
+        # Draw
+            pygame.display.flip()
+Menu()
